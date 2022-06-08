@@ -26,6 +26,57 @@ class AddStudent extends Component {
     this.state = { student: {name: '', email: ''} };
   } 
   
+    
+  componentDidMount() {
+    this.fetchAdmins();
+  }
+  
+  
+  
+    fetchAdmins = () => {
+		
+    console.log("SchedList.fetchCourses");
+    const token = Cookies.get('XSRF-TOKEN');
+    
+    fetch(`${SERVER_URL}/admin/$email`, 
+      {  
+        method: 'GET', 
+        headers: { 'X-XSRF-TOKEN': token }, 
+		credentials: 'include'
+      } )
+    .then((response) => {
+      console.log("FETCH RESP:"+response);
+      return response.json();}) 
+    .then((responseData) => { 
+      // do a sanity check on response
+      if (Array.isArray(responseData.courses)) {
+        this.setState({ 
+          courses: responseData.courses,
+        });
+      } else {
+        toast.error("Fetch failed.", {
+          position: toast.POSITION.BOTTOM_LEFT
+        });
+      }        
+    })
+    .catch(err => {
+      toast.error("Fetch failed.", {
+          position: toast.POSITION.BOTTOM_LEFT
+        });
+        console.error(err); 
+    })
+	
+  };
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
   // Add student
@@ -37,7 +88,8 @@ class AddStudent extends Component {
         method: 'POST', 
         headers: { 'Content-Type': 'application/json',
                    'X-XSRF-TOKEN': token  }, 
-        body: JSON.stringify(student)
+        body: JSON.stringify(student), 
+		credentials: 'include'
       })
     .then(res => {
         if (res.ok) {
@@ -88,17 +140,17 @@ class AddStudent extends Component {
             </div>
 			<Grid container spacing={3} justifyContent="center" alignItems="center" paddingTop={10}>
 			<Grid item>
-                  <TextField autoFocus fullWidth label="Student Name:" name="name" 
+                  <TextField autoFocus fullWidth label="Student Name:" name="name" id="StudentName"
 					onChange={this.handleNameChange}
 					/>
 				  </Grid>
 			<Grid item>
-                  <TextField autoFocus fullWidth label="Student Email:" name="email"  
+                  <TextField autoFocus fullWidth label="Student Email:" name="email" id="StudentEmail"
 				    onChange={this.handleEmailChange}
 				    />
 				  </Grid>
 			</Grid>
-			<Button color="primary" onClick={this.addStudent(this.state.student)}>Add</Button>
+			<Button color="primary" id="AddButton" onClick={this.addStudent(this.state.student)}>Add</Button>
 			</div>
 		</div>
       ); 
